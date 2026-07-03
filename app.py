@@ -269,14 +269,11 @@ if prompt:
 
                 )
 
-            except Exception:
+            except Exception as e:
 
-                error_message = (
-                    "⚠️ Unable to generate a response from the language model.\n\n"
-                    "Please verify that your API key has sufficient quota or try again later."
-                )
+                st.exception(e)
 
-                st.error(error_message)
+                raise
 
                 st.session_state.messages.append(
 

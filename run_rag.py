@@ -40,8 +40,8 @@ def ask_question(query):
     )
 
     answer = generate_answer(
-        query=query,
-        retrieved_chunks=retrieved_chunks
+        query,
+        retrieved_chunks
     )
 
     return {
