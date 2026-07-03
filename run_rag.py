@@ -1,16 +1,57 @@
 """
 Main entry point for the Pernod Ricard RAG Chatbot.
 """
+
 from src.guardrails import GuardrailEngine
 from src.utils import format_sources
 from src.retriever import HybridRetriever
 from src.llm import generate_answer
 
+# Initialize once so they are reused
+retriever = HybridRetriever()
+guard = GuardrailEngine()
+
+
+def ask_question(query):
+    """
+    Processes a user query and returns the chatbot response.
+
+    Returns:
+        dict:
+        {
+            "success": bool,
+            "answer": str,
+            "sources": str
+        }
+    """
+
+    allowed, message = guard.validate(query)
+
+    if not allowed:
+        return {
+            "success": False,
+            "answer": message,
+            "sources": ""
+        }
+
+    retrieved_chunks = retriever.hybrid_search(
+        query=query,
+        k=5
+    )
+
+    answer = generate_answer(
+        query=query,
+        retrieved_chunks=retrieved_chunks
+    )
+
+    return {
+        "success": True,
+        "answer": answer,
+        "sources": format_sources(retrieved_chunks)
+    }
+
 
 def main():
-
-    retriever = HybridRetriever()
-    guard = GuardrailEngine()
 
     print("=" * 70)
     print("Pernod Ricard RAG Chatbot")
@@ -19,51 +60,31 @@ def main():
 
     while True:
 
-        query = input("\nYou: ")
-        allowed, message = guard.validate(query)
+        query = input("\nYou: ").strip()
 
-        if not allowed:
-
-            print("\n" + "=" * 70)
-            print(message)
-            print("=" * 70)
-
-            continue
         if query.lower() in ["exit", "quit"]:
 
             print("\nGoodbye!")
 
             break
 
-        print("\nSearching knowledge base...")
-
-        retrieved_chunks = retriever.hybrid_search(
-            query=query,
-            k=5
-        )
-
-        print("Generating answer...\n")
-
         try:
 
-            answer = generate_answer(
-                query,
-                retrieved_chunks
-            )
+            print("\nSearching knowledge base...\n")
+
+            result = ask_question(query)
 
             print("=" * 70)
-            print(answer)
+            print(result["answer"])
             print("=" * 70)
 
-            print(format_sources(retrieved_chunks))
+            if result["sources"]:
+                print(result["sources"])
 
         except Exception as e:
 
             print("\nLLM Error:")
             print(e)
-
-            print("\nRetrieved Sources:\n")
-            print(format_sources(retrieved_chunks))
 
 
 if __name__ == "__main__":
