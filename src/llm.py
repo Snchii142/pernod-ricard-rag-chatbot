@@ -1,17 +1,17 @@
 """
-Gemini LLM interface.
+Gemini LLM interface for the Pernod Ricard RAG Chatbot.
 
 Uses the new google-genai SDK.
 
 NOTE:
 The assignment requires Gemini 1.5 Pro.
-The model identifier may be switched back to Gemini 1.5 Pro
+The model can be switched back to Gemini 1.5 Pro
 once API quota/access is available.
 """
 
 import os
 
-from google import genai                   # NEW package (pip install google-genai)
+from google import genai
 from google.genai import types
 
 from dotenv import load_dotenv
@@ -32,14 +32,17 @@ if not API_KEY:
 
 
 # ---------------------------------------------------
-# Initialise Client  ← new SDK uses Client, not configure()
+# Initialise Client
 # ---------------------------------------------------
 
 client = genai.Client(
     api_key=API_KEY,
     http_options={"api_version": "v1"}
 )
-MODEL = "gemini-2.0-flash"          # same model, new SDK finds it correctly
+
+# Change this back to gemini-1.5-pro once your project
+# has access to that model.
+MODEL = "gemini-2.0-flash"
 
 
 # ---------------------------------------------------
@@ -49,28 +52,18 @@ MODEL = "gemini-2.0-flash"          # same model, new SDK finds it correctly
 def generate_answer(question: str, retrieved_chunks: list) -> str:
     """
     Generate answer using retrieved context.
-
-    Args:
-        question:          User's query string
-        retrieved_chunks:  List of dicts with key "text" from retriever
-
-    Returns:
-        LLM response as plain string
     """
 
-    # Handle empty retrieval gracefully (hallucination guardrail)
     if not retrieved_chunks:
         return (
-            "I'm sorry, I don't have specific information about that in my "
-            "current knowledge base. For accurate details, please visit "
-            "pernod-ricard.com or the relevant brand website directly."
+            "I'm sorry, I couldn't find relevant information in the current knowledge base."
         )
 
     context = "\n\n".join(
         chunk["text"] for chunk in retrieved_chunks
     )
 
-    prompt = f"""\
+    prompt = f"""
 {SYSTEM_PROMPT}
 
 -------------------------
@@ -85,13 +78,14 @@ USER QUESTION
 
 {question}
 
-Answer:"""
+Answer:
+"""
 
     response = client.models.generate_content(
         model=MODEL,
         contents=prompt,
         config=types.GenerateContentConfig(
-            temperature=0.2,      # lower = more factual, less hallucination
+            temperature=0.2,
             max_output_tokens=1024,
         ),
     )

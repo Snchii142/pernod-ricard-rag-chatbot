@@ -1,6 +1,7 @@
 """
 Main entry point for the Pernod Ricard RAG Chatbot.
 """
+from src.guardrails import GuardrailEngine
 from src.utils import format_sources
 from src.retriever import HybridRetriever
 from src.llm import generate_answer
@@ -9,6 +10,7 @@ from src.llm import generate_answer
 def main():
 
     retriever = HybridRetriever()
+    guard = GuardrailEngine()
 
     print("=" * 70)
     print("Pernod Ricard RAG Chatbot")
@@ -18,7 +20,15 @@ def main():
     while True:
 
         query = input("\nYou: ")
+        allowed, message = guard.validate(query)
 
+        if not allowed:
+
+            print("\n" + "=" * 70)
+            print(message)
+            print("=" * 70)
+
+            continue
         if query.lower() in ["exit", "quit"]:
 
             print("\nGoodbye!")
