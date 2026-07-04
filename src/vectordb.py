@@ -4,19 +4,29 @@ Vector database using ChromaDB.
 
 import chromadb
 
-from chromadb.config import Settings
-
-
 # -----------------------------------------
-# Create / Load Persistent ChromaDB
+# Create Persistent Client
 # -----------------------------------------
 
-client = chromadb.PersistentClient(path="vectorstore")
+client = chromadb.PersistentClient(
+    path="vectorstore"
+)
 
-collection = client.get_or_create_collection(
+# -----------------------------------------
+# Knowledge Collection
+# -----------------------------------------
+
+knowledge_collection = client.get_or_create_collection(
     name="pernod_ricard_knowledge"
 )
 
+# -----------------------------------------
+# Chat History Collection
+# -----------------------------------------
+
+chat_collection = client.get_or_create_collection(
+    name="chat_history"
+)
 
 # -----------------------------------------
 # Add chunks into ChromaDB
@@ -24,10 +34,11 @@ collection = client.get_or_create_collection(
 
 def add_chunks(embedded_chunks):
 
-    # Check whether collection already has data
-    if collection.count() > 0:
+    if knowledge_collection.count() > 0:
+
         print("⚠️ ChromaDB already contains data.")
         print("Skipping insertion.")
+
         return
 
     ids = []
@@ -55,7 +66,7 @@ def add_chunks(embedded_chunks):
 
         })
 
-    collection.add(
+    knowledge_collection.add(
 
         ids=ids,
 
@@ -67,13 +78,18 @@ def add_chunks(embedded_chunks):
 
     )
 
-    print(f"\n✅ Stored {len(ids)} chunks in ChromaDB")
+    print(f"Stored {len(ids)} chunks.")
 
 
 # -----------------------------------------
-# Retrieve collection
+# Getter
 # -----------------------------------------
 
 def get_collection():
 
-    return collection
+    return knowledge_collection
+
+
+def get_chat_collection():
+
+    return chat_collection

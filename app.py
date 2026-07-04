@@ -1,5 +1,6 @@
 """
-Streamlit UI for the Pernod Ricard Knowledge Assistant.
+Pernod Ricard Knowledge Assistant
+Premium Enterprise UI
 """
 
 import time
@@ -7,9 +8,10 @@ import streamlit as st
 
 from run_rag import ask_question
 
-# ----------------------------------------------------
-# Page Configuration
-# ----------------------------------------------------
+
+# ---------------------------------------------------------
+# PAGE CONFIG
+# ---------------------------------------------------------
 
 st.set_page_config(
     page_title="Pernod Ricard Knowledge Assistant",
@@ -18,158 +20,433 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# ----------------------------------------------------
-# Custom CSS
-# ----------------------------------------------------
-
-st.markdown(
-    """
-<style>
-
-.main {
-    padding-top: 1rem;
-}
-
-.block-container {
-    padding-top: 2rem;
-    padding-bottom: 2rem;
-}
-
-.chat-title{
-    font-size:36px;
-    font-weight:bold;
-    color:#8B0000;
-}
-
-.subtitle{
-    color:gray;
-    margin-bottom:25px;
-}
-
-footer{
-    visibility:hidden;
-}
-
-#MainMenu{
-    visibility:hidden;
-}
-
-</style>
-""",
-    unsafe_allow_html=True
-)
-
-# ----------------------------------------------------
-# Cache Chatbot
-# ----------------------------------------------------
+# ---------------------------------------------------------
+# CACHE
+# ---------------------------------------------------------
 
 @st.cache_resource
 def load_chatbot():
     return ask_question
 
-
 chatbot = load_chatbot()
 
-WELCOME_MESSAGE = (
-    "👋 **Welcome!**\n\n"
-    "I'm the **Pernod Ricard Knowledge Assistant**.\n\n"
-    "You can ask me about:\n"
-    "- 🥃 Pernod Ricard brands\n"
-    "- 🌍 Sustainability\n"
-    "- 🏢 Company information\n"
-    "- 🍸 Responsible drinking"
-)
+# ---------------------------------------------------------
+# WELCOME MESSAGE
+# ---------------------------------------------------------
 
-# ----------------------------------------------------
-# Sidebar
-# ----------------------------------------------------
+WELCOME_MESSAGE = """
+👋 **Welcome to the Pernod Ricard Knowledge Assistant**
+
+I'm an enterprise AI assistant powered by **Hybrid Retrieval-Augmented Generation (RAG).**
+
+You can ask me about:
+
+- 🥃 Pernod Ricard Brands
+- 🌍 Sustainability
+- 🏢 Company Information
+- 🍸 Responsible Drinking
+
+Every answer is generated using the knowledge base and includes supporting sources whenever available.
+"""
+
+# ---------------------------------------------------------
+# CUSTOM CSS
+# ---------------------------------------------------------
+
+st.markdown("""
+<style>
+
+/* ---------- Background ---------- */
+
+.stApp{
+
+background:
+linear-gradient(
+135deg,
+#08121F 0%,
+#111827 55%,
+#1B263B 100%
+);
+
+color:white;
+
+}
+
+
+/* ---------- Main ---------- */
+
+.block-container{
+
+padding-top:2rem;
+padding-left:2.5rem;
+padding-right:2.5rem;
+padding-bottom:2rem;
+
+}
+
+
+/* ---------- Sidebar ---------- */
+
+[data-testid="stSidebar"]{
+
+background:
+linear-gradient(
+180deg,
+#0D1525,
+#172235
+);
+
+border-right:1px solid rgba(255,255,255,.08);
+
+}
+
+
+/* ---------- Cards ---------- */
+
+.glass-card{
+
+background:rgba(255,255,255,.08);
+
+backdrop-filter:blur(18px);
+
+border-radius:20px;
+
+padding:20px;
+
+border:1px solid rgba(255,255,255,.08);
+
+box-shadow:
+0 8px 30px rgba(0,0,0,.35);
+
+margin-bottom:15px;
+
+}
+
+
+/* ---------- Chat ---------- */
+
+[data-testid="stChatMessage"]{
+
+background:rgba(255,255,255,.05);
+
+border-radius:18px;
+
+padding:15px;
+
+border:1px solid rgba(255,255,255,.08);
+
+margin-bottom:18px;
+
+transition:.25s;
+
+}
+
+[data-testid="stChatMessage"]:hover{
+
+transform:translateY(-2px);
+
+}
+
+
+/* ---------- Header ---------- */
+
+.title{
+
+font-size:42px;
+
+font-weight:800;
+
+color:white;
+
+margin-bottom:6px;
+
+}
+
+.subtitle{
+
+font-size:17px;
+
+color:#d6d6d6;
+
+margin-bottom:30px;
+
+}
+
+
+/* ---------- Metrics ---------- */
+
+.metric-card{
+
+background:rgba(255,255,255,.07);
+
+border-radius:18px;
+
+padding:20px;
+
+text-align:center;
+
+border:1px solid rgba(255,255,255,.08);
+
+transition:.3s;
+
+}
+
+.metric-card:hover{
+
+transform:translateY(-5px);
+
+}
+
+
+/* ---------- Buttons ---------- */
+
+.stButton>button{
+
+width:100%;
+
+background:
+linear-gradient(
+90deg,
+#8B0000,
+#C8102E
+);
+
+color:white;
+
+font-weight:bold;
+
+border:none;
+
+border-radius:12px;
+
+padding:.75rem;
+
+transition:.3s;
+
+}
+
+.stButton>button:hover{
+
+transform:scale(1.02);
+
+box-shadow:0 0 18px rgba(200,16,46,.45);
+
+}
+
+
+/* ---------- Footer ---------- */
+
+footer{
+
+visibility:hidden;
+
+}
+
+#MainMenu{
+
+visibility:hidden;
+
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+# ---------------------------------------------------------
+# SIDEBAR
+# ---------------------------------------------------------
 
 with st.sidebar:
 
-    st.image(
-        "https://upload.wikimedia.org/wikipedia/commons/4/4b/Pernod_Ricard_logo.svg",
-        width=180,
-    )
+    st.markdown("## 🥃 Pernod Ricard")
 
-    st.title("Knowledge Assistant")
+    st.caption("Enterprise Knowledge Assistant")
 
     st.markdown("---")
 
-    st.subheader("Suggested Questions")
+    # ---------------------------------------------------------
+# RECENT CHAT HISTORY
+# ---------------------------------------------------------
 
-    suggestions = [
-        "Tell me about Jameson.",
-        "What is Absolut Vodka?",
-        "What brands does Pernod Ricard own?",
-        "Tell me about Chivas Regal.",
-        "Describe Ballantine's whisky."
+    st.subheader("💬 Recent Chat")
+
+    history = [
+        msg["content"]
+        for msg in st.session_state.get("messages", [])
+        if msg["role"] == "user"
     ]
 
-    for question in suggestions:
-        st.markdown(f"• {question}")
+    if history:
+
+        for i, question in enumerate(reversed(history[-5:]), 1):
+
+            st.caption(f"{i}. {question[:45]}...")
+
+    else:
+
+        st.caption("No conversations yet.")
+
+        st.subheader("💡 Suggested Questions")
+
+        suggestions = [
+            "Tell me about Jameson",
+            "What is Absolut Vodka?",
+            "What brands does Pernod Ricard own?",
+            "Tell me about Chivas Regal",
+            "Describe Ballantine's whisky"
+        ]
+
+        for question in suggestions:
+            st.button(
+                question,
+                key=f"suggestion_{question}",
+                disabled=True,
+                use_container_width=True
+            )
 
     st.markdown("---")
 
-    st.subheader("About")
 
-    st.write(
-        """
-This chatbot uses:
-
-- ✅ Hybrid Retrieval
-- ✅ ChromaDB Vector Store
-- ✅ BM25 Search
-- ✅ Retrieval-Augmented Generation (RAG)
-- ✅ Rule-based Guardrails
-- ✅ Large Language Model
-"""
-    )
-
-    st.markdown("---")
+    st.subheader("🛡 Responsible AI")
 
     age_confirmed = st.checkbox(
         "I confirm I am above the legal drinking age."
     )
 
     st.info(
-        "Please drink responsibly.\n\n"
-        "This chatbot does not provide medical, legal or purchasing advice."
+        """
+Please drink responsibly.
+
+This assistant does **not** provide:
+
+• Medical advice
+
+• Purchasing advice
+
+• Legal advice
+"""
     )
 
     st.markdown("---")
 
-    if st.button("🗑 Clear Chat", use_container_width=True):
+    if st.button(
+        "🗑 Clear Conversation",
+        use_container_width=True
+    ):
 
         st.session_state.messages = [
-
             {
                 "role": "assistant",
                 "content": WELCOME_MESSAGE
             }
-
         ]
 
         st.rerun()
 
-# ----------------------------------------------------
-# Header
-# ----------------------------------------------------
+
+# ---------------------------------------------------------
+# HEADER
+# ---------------------------------------------------------
 
 st.markdown(
-    '<div class="chat-title">🥃 Pernod Ricard Knowledge Assistant</div>',
-    unsafe_allow_html=True,
+    """
+<div class='title'>
+🥃 Pernod Ricard Knowledge Assistant
+</div>
+""",
+    unsafe_allow_html=True
 )
 
 st.markdown(
-    '<div class="subtitle">'
-    'Ask questions about Pernod Ricard brands, products, sustainability and company knowledge.'
-    '</div>',
-    unsafe_allow_html=True,
+    """
+<div class='subtitle'>
+Enterprise Retrieval-Augmented Generation (RAG) Assistant powered by Hybrid Search,
+ChromaDB and Large Language Models.
+</div>
+""",
+    unsafe_allow_html=True
 )
 
-# ----------------------------------------------------
-# Session State
-# ----------------------------------------------------
+
+# ---------------------------------------------------------
+# DASHBOARD
+# ---------------------------------------------------------
+
+col1, col2, col3, col4 = st.columns(4)
+
+with col1:
+
+    st.markdown(
+        """
+<div class="metric-card">
+
+### 📄 Documents
+
+Knowledge Base
+
+</div>
+""",
+        unsafe_allow_html=True
+    )
+
+with col2:
+
+    st.markdown(
+        """
+<div class="metric-card">
+
+### 🥃 Brands
+
+240+
+
+</div>
+""",
+        unsafe_allow_html=True
+    )
+
+with col3:
+
+    st.markdown(
+        """
+<div class="metric-card">
+
+### 🔍 Retrieval
+
+Hybrid Search
+
+</div>
+""",
+        unsafe_allow_html=True
+    )
+
+with col4:
+
+    st.markdown(
+        """
+<div class="metric-card">
+
+### 🤖 LLM
+
+Groq Llama 3.3
+
+</div>
+""",
+        unsafe_allow_html=True
+    )
+
+st.write("")
+
+
+# ---------------------------------------------------------
+# WELCOME CARD
+# ---------------------------------------------------------
+
+
+st.write("")
+
+
+# ---------------------------------------------------------
+# SESSION STATE
+# ---------------------------------------------------------
 
 if "messages" not in st.session_state:
 
@@ -182,114 +459,164 @@ if "messages" not in st.session_state:
 
     ]
 
-# ----------------------------------------------------
-# Display Chat History
-# ----------------------------------------------------
 
-for message in st.session_state.messages:
+# ---------------------------------------------------------
+# CHAT HISTORY
+# ---------------------------------------------------------
 
-    with st.chat_message(message["role"]):
+chat_container = st.container()
 
-        st.markdown(message["content"])
+with chat_container:
 
-        if message.get("sources"):
+    for message in st.session_state.messages:
 
-            with st.expander("📚 Sources"):
+        with st.chat_message(message["role"]):
 
-                st.markdown(message["sources"])
+            st.markdown(message["content"])
 
-# ----------------------------------------------------
-# User Input
-# ----------------------------------------------------
+            if message.get("sources"):
 
-prompt = st.chat_input(
-    "Ask your question..."
-)
+                with st.expander("📚 View Sources", expanded=False):
+
+                    st.markdown(message["sources"])
+
+
+# ---------------------------------------------------------
+# USER INPUT
+# ---------------------------------------------------------
+
+# ---------------------------------------------------------
+# CHAT INPUT
+# ---------------------------------------------------------
+
+if not age_confirmed:
+
+    st.warning(
+        "⚠️ Please confirm that you are above the legal drinking age to start chatting."
+    )
+
+    prompt = None
+
+    st.chat_input(
+        "Please confirm your age in the sidebar...",
+        disabled=True
+    )
+
+else:
+
+    prompt = st.chat_input(
+        "Ask about Pernod Ricard brands, sustainability, company information..."
+    )
+
+# ---------------------------------------------------------
+# PROCESS USER QUERY
+# ---------------------------------------------------------
 
 if prompt:
 
     if not age_confirmed:
 
         st.warning(
-            "Please confirm that you are above the legal drinking age before chatting."
+            "⚠️ Please confirm that you are above the legal drinking age before using the assistant."
         )
 
         st.stop()
 
-    # -------------------------
-    # Show user message
-    # -------------------------
+    # Save user message
 
     st.session_state.messages.append(
+
         {
             "role": "user",
             "content": prompt
         }
+
     )
 
     with st.chat_message("user"):
 
         st.markdown(prompt)
 
-    # -------------------------
-    # Assistant Response
-    # -------------------------
+    # Assistant
 
     with st.chat_message("assistant"):
 
+        thinking = st.empty()
+
+        thinking.markdown(
+            """
+🤖 **Searching knowledge base...**
+
+Please wait...
+"""
+        )
+
         start = time.time()
 
-        with st.spinner("Searching knowledge base..."):
+        try:
 
-            try:
+            result = chatbot(prompt)
 
-                result = chatbot(prompt)
+            elapsed = time.time() - start
 
-                elapsed = time.time() - start
+            thinking.empty()
 
-                st.markdown(result["answer"])
+            st.markdown(result["answer"])
+
+            col1, col2 = st.columns([3,1])
+
+            with col1:
 
                 st.caption(
-                    f"⏱ Response generated in {elapsed:.2f} seconds"
+                    f"⏱ Response generated in **{elapsed:.2f} sec**"
                 )
 
-                if result["sources"]:
+            with col2:
 
-                    with st.expander("📚 Sources Used"):
+                if result["success"]:
 
-                        st.markdown(result["sources"])
+                    st.success("Retrieved")
 
-                st.session_state.messages.append(
+                else:
 
-                    {
-                        "role": "assistant",
-                        "content": result["answer"],
-                        "sources": result["sources"]
-                    }
+                    st.warning("Guardrail")
 
-                )
+            if result["sources"]:
 
-            except Exception as e:
+                with st.expander(
+                    "📚 Sources Used",
+                    expanded=False
+                ):
 
-                st.exception(e)
+                    st.markdown(result["sources"])
 
-                raise
+            st.session_state.messages.append(
 
-                st.session_state.messages.append(
+                {
+                    "role": "assistant",
+                    "content": result["answer"],
+                    "sources": result["sources"]
+                }
 
-                    {
-                        "role": "assistant",
-                        "content": error_message
-                    }
+            )
 
-                )
+        except Exception as e:
 
-# ----------------------------------------------------
-# Footer
-# ----------------------------------------------------
+            thinking.empty()
 
-st.markdown("---")
+            st.error(
+                "Unable to generate a response."
+            )
 
-st.caption(
-    "Powered by Hybrid RAG • ChromaDB • BM25 • Gemini"
-)
+            st.exception(e)
+
+            st.session_state.messages.append(
+
+                {
+                    "role":"assistant",
+
+                    "content":
+                    "Unable to generate a response."
+                }
+
+            )
