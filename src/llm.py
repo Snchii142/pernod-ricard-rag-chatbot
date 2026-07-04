@@ -87,4 +87,36 @@ USER QUESTION
 
     )
 
-    return response.choices[0].message.content
+    answer = response.choices[0].message.content
+
+    # ---------------------------------------------------
+    # Responsible Drinking Reminder
+    # ---------------------------------------------------
+
+    serve_keywords = [
+
+            "cocktail",
+
+            "recipe",
+
+            "serve",
+
+            "drink",
+
+            "mix",
+
+            "neat",
+
+            "on the rocks"
+
+    ]
+
+    if any(word in question.lower() for word in serve_keywords):
+
+        answer += (
+
+            "\n\nPlease drink responsibly and in moderation."
+
+        )
+
+    return answer

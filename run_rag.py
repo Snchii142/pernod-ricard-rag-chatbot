@@ -103,6 +103,23 @@ def ask_question(query, chat_id=None):
         k=5
 
     )
+    # ---------------------------------------------------
+     # Hallucination Boundary
+    # ---------------------------------------------------
+
+    if not retrieved_chunks:
+
+        return {
+            "success": False,
+
+            "answer": (
+                 "I couldn't find reliable information "
+                "about that in the Pernod Ricard knowledge base."
+            ),
+
+            "sources": "",
+            "chat_id": chat_id
+        }
 
     # ----------------------------
     # LLM
